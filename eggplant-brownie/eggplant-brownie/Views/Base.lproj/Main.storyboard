@@ -96,6 +96,7 @@
                     <navigationItem key="navigationItem" id="5nk-YW-9AX"/>
                     <connections>
                         <outlet property="happyTextField" destination="b9M-xP-IPh" id="diY-FD-RAH"/>
+                        <outlet property="itensTableView" destination="eOe-ic-giW" id="siF-Ow-nvN"/>
                         <outlet property="nameTextField" destination="gN9-R2-YkY" id="Q7H-rM-B0g"/>
                     </connections>
                 </viewController>

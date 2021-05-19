@@ -25,11 +25,22 @@ class ViewController: UIViewController {
     // MARK: - @IBOutlet
     @IBOutlet weak var nameTextField: UITextField?
     @IBOutlet weak var happyTextField: UITextField?
+    @IBOutlet weak var itensTableView: UITableView!
     
     
+    // MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        let btnAddItem = UIBarButtonItem(title: "Adicionar", style: .plain, target: self , action: #selector(addItem))
+        navigationItem.rightBarButtonItem = btnAddItem
+        
+    }
+    
+    // MARK: - Methods
+    @objc func addItem() {
+        let addViewController = AddItensViewController(delegate: self)
+        navigationController?.pushViewController(addViewController, animated: true)
     }
 
     // MARK: - @IBAction
@@ -83,5 +94,13 @@ extension ViewController: UITableViewDelegate {
                 itensSelected.remove(at: position)
             }
         }
+    }
+}
+
+// MARK: - AddItensDelegate
+extension ViewController: AddItensDelegate {
+    func add(_ item: Item) {
+        itens.append(item)
+        itensTableView.reloadData()
     }
 }
