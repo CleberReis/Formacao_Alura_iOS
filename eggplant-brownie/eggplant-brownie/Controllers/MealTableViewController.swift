@@ -33,8 +33,26 @@ class MealTableViewController: UITableViewController {
 
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
         cell.textLabel?.text = meal.nome
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(showDetails))
+        cell.addGestureRecognizer(longPress)
 
         return cell
+    }
+    
+    @objc func showDetails(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            let cell = gesture.view as! UITableViewCell
+            guard let indexPath = tableView.indexPath(for: cell) else { return }
+            let meal = meals[indexPath.row]
+            
+            let alert = UIAlertController(title: meal.nome, message: meal.detail(), preferredStyle: .alert)
+            let btnOK = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+            alert.addAction(btnOK)
+            
+            present(alert, animated: true, completion: nil)
+            
+        }
     }
     
 }

@@ -27,4 +27,14 @@ class Meal: NSObject {
         
         return total
     }
+    
+    func detail() -> String {
+        var message = "Felicidade: \(feliciadade)"
+        
+        for item in itens {
+            message += ", \(item.nome) - calorias: \(item.calorias)"
+        }
+        
+        return message
+    }
 }

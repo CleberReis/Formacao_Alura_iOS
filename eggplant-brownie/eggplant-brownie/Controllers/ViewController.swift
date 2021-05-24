@@ -25,7 +25,7 @@ class ViewController: UIViewController {
     // MARK: - @IBOutlet
     @IBOutlet weak var nameTextField: UITextField?
     @IBOutlet weak var happyTextField: UITextField?
-    @IBOutlet weak var itensTableView: UITableView!
+    @IBOutlet weak var itensTableView: UITableView?
     
     
     // MARK: - Life cycle
@@ -101,6 +101,15 @@ extension ViewController: UITableViewDelegate {
 extension ViewController: AddItensDelegate {
     func add(_ item: Item) {
         itens.append(item)
-        itensTableView.reloadData()
+        
+        if let tableView = itensTableView {
+            tableView.reloadData()
+        } else {
+            let alert = UIAlertController(title: "Desculpe", message: "não foi possível atualizar a tabela", preferredStyle: .alert)
+            let btnOK = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+            alert.addAction(btnOK)
+            present(alert, animated: true, completion: nil)
+        }
+        
     }
 }
