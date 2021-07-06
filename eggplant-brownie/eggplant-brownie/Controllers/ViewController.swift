@@ -42,18 +42,29 @@ class ViewController: UIViewController {
         let addViewController = AddItensViewController(delegate: self)
         navigationController?.pushViewController(addViewController, animated: true)
     }
-
-    // MARK: - @IBAction
-    @IBAction func addMeal(_ sender: UIButton) {
-        
-        guard let nameMeal = nameTextField?.text else { return }
-        guard let happyMeal = happyTextField?.text, let happy = Int(happyMeal) else { return }
+    
+    func recoveryMealForm() -> Meal? {
+        guard let nameMeal = nameTextField?.text else {
+            return nil
+        }
+        guard let happyMeal = happyTextField?.text, let happy = Int(happyMeal) else {
+            return nil
+        }
         
         let meal = Meal(nome: nameMeal, felicidade: happy, itens: itensSelected)
         
-        delegate?.add(meal)
-        navigationController?.popViewController(animated: true)
+        return meal
+    }
+    
+    // MARK: - @IBAction
+    @IBAction func addMeal(_ sender: UIButton) {
         
+        if let meal = recoveryMealForm() {
+            delegate?.add(meal)
+            navigationController?.popViewController(animated: true)
+        } else {
+            Alert.init(controller: self).show(message: "Erro ao ler dados do formulário")
+        }
     }
     
 }
@@ -105,11 +116,9 @@ extension ViewController: AddItensDelegate {
         if let tableView = itensTableView {
             tableView.reloadData()
         } else {
-            let alert = UIAlertController(title: "Desculpe", message: "não foi possível atualizar a tabela", preferredStyle: .alert)
-            let btnOK = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
-            alert.addAction(btnOK)
-            present(alert, animated: true, completion: nil)
+            Alert(controller: self).show(title: "Desculpe", message: "Não foi possível atualizar a tabela")
         }
         
     }
+    
 }
