@@ -15,11 +15,7 @@ class ViewController: UIViewController {
     
     // MARK: - Properties
     var delegate: AddMealDelegate?
-    var itens: [Item] = [
-        Item(nome: "Queijo", calorias: 40.0),
-        Item(nome: "Molho apimentado", calorias: 30.0)
-    ]
-    
+    var itens: [Item] = []
     var itensSelected: [Item] = []
     
     // MARK: - @IBOutlet
@@ -34,19 +30,11 @@ class ViewController: UIViewController {
         
         let btnAddItem = UIBarButtonItem(title: "Adicionar", style: .plain, target: self , action: #selector(addItem))
         navigationItem.rightBarButtonItem = btnAddItem
-        
-        do {
-            guard let diretory = recoveryDirectory() else { return }
-            let data = try Data(contentsOf: diretory)
-            let itensSaved = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [Item]
-            itens = itensSaved
-        } catch {
-            print(error.localizedDescription)
-        }
-        
-        
-        
-        
+        recoveryItens()
+    }
+    
+    func recoveryItens() {
+        itens = ItemDao().recovery()
     }
     
     // MARK: - Methods
@@ -124,29 +112,14 @@ extension ViewController: UITableViewDelegate {
 extension ViewController: AddItensDelegate {
     func add(_ item: Item) {
         itens.append(item)
-        
+        ItemDao().save(itens)
         if let tableView = itensTableView {
             tableView.reloadData()
         } else {
             Alert(controller: self).show(title: "Desculpe", message: "Não foi possível atualizar a tabela")
         }
-        do {
-            let data = try NSKeyedArchiver.archivedData(withRootObject: itens, requiringSecureCoding: false)
-            guard let path = recoveryDirectory() else { return }
-            try data.write(to: path)
-        } catch {
-            print(error.localizedDescription)
-        }
-        
     }
     
-    func recoveryDirectory() -> URL? {
-        guard let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            return nil
-        }
-        let path = directory.appendingPathComponent("itens")
-        
-        return path
-    }
+    
     
 }

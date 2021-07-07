@@ -9,35 +9,10 @@ import UIKit
 
 class MealTableViewController: UITableViewController {
     
-    var meals = [
-        Meal(nome: "Feijoada", felicidade: 5),
-        Meal(nome: "Arroz", felicidade: 3),
-        Meal(nome: "Pizza", felicidade: 5)
-    ]
+    var meals: [Meal] = []
     
     override func viewDidLoad() {
-        guard let path = recoveryPath() else { return }
-        do {
-            let data = try Data(contentsOf: path)
-            guard let mealsSaved = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? Array<Meal> else {
-                return
-            }
-            
-            meals = mealsSaved
-            
-        } catch {
-            print(error.localizedDescription)
-        }
-        
-    }
-    
-    func recoveryPath() -> URL? {
-        guard let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            return nil
-        }
-        let path = directory.appendingPathComponent("meal")
-        
-        return path
+        meals = MealDao().recovery()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -85,15 +60,8 @@ extension MealTableViewController: AddMealDelegate {
     
     func add(_ meal: Meal) {
         meals.append(meal)
-        
-        guard let path = recoveryPath() else { return }
-        do {
-            let data = try NSKeyedArchiver.archivedData(withRootObject: meal, requiringSecureCoding: false)
-            try data.write(to: path)
-        } catch {
-            print(error.localizedDescription)
-        }
         tableView.reloadData()
+        MealDao().save(meals)
     }
     
 }
