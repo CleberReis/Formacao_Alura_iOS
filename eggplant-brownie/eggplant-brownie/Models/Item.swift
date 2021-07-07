@@ -7,12 +7,23 @@
 
 import Foundation
 
-class Item: NSObject {
-    let nome: String
-    let calorias: Double
+class Item: NSObject, NSCoding {
+    
+    let name: String
+    let calories: Double
     
     init(nome: String, calorias: Double) {
-        self.nome = nome
-        self.calorias = calorias
+        self.name = nome
+        self.calories = calorias
+    }
+    
+    func encode(with coder: NSCoder) {
+        coder.encode(name, forKey: "name")
+        coder.encode(calories, forKey: "calories")
+    }
+    
+    required init?(coder: NSCoder) {
+        name = coder.decodeObject(forKey: "name") as! String
+        calories = coder.decodeDouble(forKey: "calories")
     }
 }

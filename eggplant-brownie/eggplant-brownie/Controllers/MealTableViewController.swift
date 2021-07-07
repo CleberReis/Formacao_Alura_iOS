@@ -15,6 +15,31 @@ class MealTableViewController: UITableViewController {
         Meal(nome: "Pizza", felicidade: 5)
     ]
     
+    override func viewDidLoad() {
+        guard let path = recoveryPath() else { return }
+        do {
+            let data = try Data(contentsOf: path)
+            guard let mealsSaved = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? Array<Meal> else {
+                return
+            }
+            
+            meals = mealsSaved
+            
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+    }
+    
+    func recoveryPath() -> URL? {
+        guard let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let path = directory.appendingPathComponent("meal")
+        
+        return path
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if segue.identifier == "addSegue" {
@@ -32,7 +57,7 @@ class MealTableViewController: UITableViewController {
         let meal = meals[indexPath.row]
 
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
-        cell.textLabel?.text = meal.nome
+        cell.textLabel?.text = meal.name
         
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(showDetails))
         cell.addGestureRecognizer(longPress)
@@ -45,12 +70,11 @@ class MealTableViewController: UITableViewController {
             let cell = gesture.view as! UITableViewCell
             guard let indexPath = tableView.indexPath(for: cell) else { return }
             let meal = meals[indexPath.row]
-            
-            let alert = UIAlertController(title: meal.nome, message: meal.detail(), preferredStyle: .alert)
-            let btnOK = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
-            alert.addAction(btnOK)
-            
-            present(alert, animated: true, completion: nil)
+                        
+            RemoveMealController.init(controller: self).showMeal(meal) { alert in
+                self.meals.remove(at: indexPath.row)
+                self.tableView.reloadData()
+            }
             
         }
     }
@@ -61,6 +85,14 @@ extension MealTableViewController: AddMealDelegate {
     
     func add(_ meal: Meal) {
         meals.append(meal)
+        
+        guard let path = recoveryPath() else { return }
+        do {
+            let data = try NSKeyedArchiver.archivedData(withRootObject: meal, requiringSecureCoding: false)
+            try data.write(to: path)
+        } catch {
+            print(error.localizedDescription)
+        }
         tableView.reloadData()
     }
     

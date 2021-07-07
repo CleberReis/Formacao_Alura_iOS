@@ -35,6 +35,18 @@ class ViewController: UIViewController {
         let btnAddItem = UIBarButtonItem(title: "Adicionar", style: .plain, target: self , action: #selector(addItem))
         navigationItem.rightBarButtonItem = btnAddItem
         
+        do {
+            guard let diretory = recoveryDirectory() else { return }
+            let data = try Data(contentsOf: diretory)
+            let itensSaved = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [Item]
+            itens = itensSaved
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        
+        
+        
     }
     
     // MARK: - Methods
@@ -81,7 +93,7 @@ extension ViewController: UITableViewDataSource {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
         let item = itens[indexPath.row]
         
-        cell.textLabel?.text = item.nome
+        cell.textLabel?.text = item.name
         
         return cell
     }
@@ -118,7 +130,23 @@ extension ViewController: AddItensDelegate {
         } else {
             Alert(controller: self).show(title: "Desculpe", message: "Não foi possível atualizar a tabela")
         }
+        do {
+            let data = try NSKeyedArchiver.archivedData(withRootObject: itens, requiringSecureCoding: false)
+            guard let path = recoveryDirectory() else { return }
+            try data.write(to: path)
+        } catch {
+            print(error.localizedDescription)
+        }
         
+    }
+    
+    func recoveryDirectory() -> URL? {
+        guard let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let path = directory.appendingPathComponent("itens")
+        
+        return path
     }
     
 }
